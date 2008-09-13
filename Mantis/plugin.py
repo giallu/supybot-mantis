@@ -42,8 +42,6 @@ from SOAPpy import SOAPProxy
 
 namespace = 'http://futureware.biz/mantisconnect'
 
-server = SOAPProxy(urlbase)._ns(namespace)
-
 class Mantis(callbacks.PluginRegexp):
     """Utilities related to mantis
     For now, just a expansion "bug #" to URI is provided.
@@ -62,6 +60,7 @@ class Mantis(callbacks.PluginRegexp):
             self.saidBugs[k] = TimeoutQueue(sayTimeout)
         
         self.url = self.registryValue('urlbase') + '/api/soap/mantisconnect.php'
+        self.server = SOAPProxy(urlbase)._ns(namespace)
         self.username = self.registryValue('username')
         self.password = self.registryValue('password')
 
