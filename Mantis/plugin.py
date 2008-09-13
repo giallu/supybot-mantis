@@ -60,7 +60,7 @@ class Mantis(callbacks.PluginRegexp):
             self.saidBugs[k] = TimeoutQueue(sayTimeout)
         
         self.url = self.registryValue('urlbase') + '/api/soap/mantisconnect.php'
-        self.server = SOAPProxy(urlbase)._ns(namespace)
+        self.server = SOAPProxy(self.url)._ns(namespace)
         self.username = self.registryValue('username')
         self.password = self.registryValue('password')
 
@@ -72,10 +72,11 @@ class Mantis(callbacks.PluginRegexp):
         """<bug number>
         Expand bug # to a full URI
         """
-        if server.mc_issue_exists( username=mantisuser, password=mantispassword, issue_id = bugNumber ):
+        if self.server.mc_issue_exists( username=self.username,
+                password=self.password, issue_id = bugNumber ):
         #TODO: we could use directly this call to see if bug exists; learn how
         #      to use exceptions
-            bugdata = server.mc_issue_get( username=mantisuser, password=mantispassword, issue_id = bugNumber )
+            bugdata = self.server.mc_issue_get( username=self.username, password=self.password, issue_id = bugNumber )
             summary = bugdata['summary']
             status = bugdata['status'].name
             reporter = bugdata['reporter'].name
@@ -91,7 +92,7 @@ class Mantis(callbacks.PluginRegexp):
     def version( self, irc, msg, args ):
         """ Returns the Mantis SOAP API version running on server
         """
-        irc.reply( "Mantis SOAP API version: " + server.mc_version() )
+        irc.reply( "Mantis SOAP API version: " + self.server.mc_version() )
     version = wrap(version)
 
     
@@ -131,7 +132,8 @@ class Mantis(callbacks.PluginRegexp):
 
     def getBugs(self, ids):
         for id in ids:
-            bugdata = server.mc_issue_get( username=mantisuser, password=mantispassword, issue_id = id )
+            bugdata = self.server.mc_issue_get( username=self.username,
+                    password=self.password, issue_id = id )
             summary = bugdata['summary']
             status = bugdata['status'].name
             reporter = bugdata['reporter'].name
