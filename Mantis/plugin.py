@@ -40,11 +40,7 @@ import sys
 # depends from SOAPpy
 from SOAPpy import SOAPProxy
 
-#Tunables: TODO move them to plugins config
-urlbase = 'http://www.mantisbt.org/bugs/api/soap/mantisconnect.php'
 namespace = 'http://futureware.biz/mantisconnect'
-mantisuser = ''
-mantispassword = ''
 
 server = SOAPProxy(urlbase)._ns(namespace)
 
@@ -65,6 +61,10 @@ class Mantis(callbacks.PluginRegexp):
         for k in irc.state.channels.keys():
             self.saidBugs[k] = TimeoutQueue(sayTimeout)
         
+        self.url = self.registryValue('urlbase') + '/api/soap/mantisconnect.php'
+        self.username = self.registryValue('username')
+        self.password = self.registryValue('password')
+
         reload(sys)
         sys.setdefaultencoding('utf-8')
 
@@ -82,7 +82,7 @@ class Mantis(callbacks.PluginRegexp):
             reporter = bugdata['reporter'].name
             resolution = bugdata['resolution'].name
             irc.reply("Bug %s - %s - %s - %s" % (bugNumber, reporter, status, resolution) )
-            irc.reply("%s - http://www.mantisbt.org/bugs/view.php?id=%s" % (summary, bugNumber) )
+            irc.reply("%s - %s/view.php?id=%s" % (summary, self.urlbase, bugNumber) )
         else:
             irc.reply( "sorry, bug %s was not found" % bugNumber )
 
@@ -138,8 +138,7 @@ class Mantis(callbacks.PluginRegexp):
             reporter = bugdata['reporter'].name
             resolution = bugdata['resolution'].name
             strings = [ "Bug %s - %s - %s - %s" % (id, reporter, status, resolution) ]
-            strings.append( "%s - http://www.mantisbt.org/bugs/view.php?id=%s" \
-                    % (summary, id) )
+            strings.append( "%s - %s/view.php?id=%s" % (summary, self.urlbase, id) )
         return strings
 
 

@@ -50,8 +50,8 @@ Mantis = conf.registerPlugin('Mantis')
 
 conf.registerChannelValue(Mantis, 'bugSnarfer',
     registry.Boolean(False, """Determines whether the bug snarfer will be
-    enabled, such that any Bugzilla URLs and bug ### seen in the channel
-    will have their information reported into the channel."""))
+    enabled, such that any bug ### seen in the channel
+    will have its information reported into the channel."""))
 
 conf.registerGlobalValue(Mantis, 'bugSnarferTimeout',
     registry.PositiveInteger(300, 
@@ -59,5 +59,18 @@ conf.registerGlobalValue(Mantis, 'bugSnarferTimeout',
     If "bug XXX" has been said in the last (this many) seconds, don't
     fetch its data again. If you change the value of this variable, you
     must reload this plugin for the change to take effect."""))
+
+conf.registerChannelValue(Mantis, 'urlbase',
+    registry.String('http://www.mantisbt.org/bugs', 
+    """The base URL for the Mantis instance this plugin will retrieve
+    bug informations from."""))
+
+conf.registerGlobalValue(Mantis, 'username',
+    registry.String('', """Username for the Mantis account""",
+                    private=True))
+conf.registerGlobalValue(Mantis, 'password',
+    registry.String('', """Password for the Mantis account""",
+                    private=True))
+
 
 # vim:set shiftwidth=4 tabstop=4 expandtab textwidth=79:
