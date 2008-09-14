@@ -59,8 +59,9 @@ class Mantis(callbacks.PluginRegexp):
         for k in irc.state.channels.keys():
             self.saidBugs[k] = TimeoutQueue(sayTimeout)
         
-        self.urlbase = self.registryValue('urlbase') + '/api/soap/mantisconnect.php'
-        self.server = SOAPProxy(self.urlbase)._ns(namespace)
+        self.urlbase = self.registryValue('urlbase') 
+        serviceUrl = self.urlbase + '/api/soap/mantisconnect.php'
+        self.server = SOAPProxy(serviceUrl)._ns(namespace)
         self.username = self.registryValue('username')
         self.password = self.registryValue('password')
 
