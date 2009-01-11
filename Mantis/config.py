@@ -61,7 +61,7 @@ conf.registerGlobalValue(Mantis, 'bugSnarferTimeout',
     must reload this plugin for the change to take effect."""))
 
 conf.registerChannelValue(Mantis, 'bugMsgFormat',
-    registry.String('Bug _ID_ - _REPORTER_ - _RESOLUTION_ - _STATUS_ _CRLF__SUMMARY_ - _URL_',
+    registry.String('Bug _ID_ - _REPORTER_ - _RESOLUTION_ - _STATUS__CRLF__SUMMARY_ - _URL_',
     """Change the message format for bug details, following tokens will 
     be replaced before being printed: _ID_, _URL_, _REPORTER_, 
     _PROJECT_, _SUMMARY_, _STATUS_, _RESOLUTION_ .
