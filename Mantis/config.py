@@ -48,6 +48,17 @@ Mantis = conf.registerPlugin('Mantis')
 # conf.registerGlobalValue(Mantis, 'someConfigVariableName',
 #     registry.Boolean(False, """Help for someConfigVariableName."""))
 
+conf.registerChannelValue(Mantis,'bugPeriodicCheck',
+    registry.Integer(0,
+     """The plugin will check for new bug reports each <bugPeriodicCheck> seconds.
+    If set to 0, this feature is disabled (default). The plugin
+    must be reloaded for changes to take effect."""))
+
+conf.registerGlobalValue(Mantis, 'bugPeriodicCheckTo',
+    registry.String('', 
+    """Determines who will be informed when new bugs are reported. 
+    It is a whitespace separated list of nickname or channel"""))
+
 conf.registerChannelValue(Mantis, 'bugSnarfer',
     registry.Boolean(False, """Determines whether the bug snarfer will be
     enabled, such that any bug ### seen in the channel
@@ -75,6 +86,7 @@ conf.registerChannelValue(Mantis, 'urlbase',
 conf.registerGlobalValue(Mantis, 'username',
     registry.String('', """Username for the Mantis account""",
                     private=True))
+
 conf.registerGlobalValue(Mantis, 'password',
     registry.String('', """Password for the Mantis account""",
                     private=True))

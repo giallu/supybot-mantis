@@ -33,6 +33,7 @@ from supybot.commands import *
 import supybot.plugins as plugins
 import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
+import supybot.schedule as schedule
 from supybot.utils.structures import TimeoutQueue
 
 import sys
@@ -44,7 +45,10 @@ namespace = 'http://futureware.biz/mantisconnect'
 
 class Mantis(callbacks.PluginRegexp):
     """Utilities related to mantis
-    For now, just a expansion "bug #" to URI is provided.
+    This plugin is able to display newly reported bug, 
+    and an expansion "bug #" to URI is provided.
+    It can also detect "bug #" in chat.
+    A template allow to change response message.
     """
 
     threaded = True
@@ -64,9 +68,43 @@ class Mantis(callbacks.PluginRegexp):
         self.server = SOAPProxy(serviceUrl)._ns(namespace)
         self.username = self.registryValue('username')
         self.password = self.registryValue('password')
+        self.oldperiodic = self.registryValue('bugPeriodicCheck')
+
+        bugPeriodicCheck = self.registryValue('bugPeriodicCheck')
+        if bugPeriodicCheck > 0:
+            schedule.addPeriodicEvent(self._bugPeriodicCheck, bugPeriodicCheck, name=self.name())
 
         reload(sys)
         sys.setdefaultencoding('utf-8')
+
+
+    def __call__(self, irc, msg):
+        irc = callbacks.SimpleProxy(irc, msg)
+        self.lastIrc = irc
+        self.lastMsg = msg
+        self.lastBug = 0
+
+
+    def die(self):
+        self.__parent.die()
+        if self.oldperiodic > 0:
+            schedule.removeEvent(self.name())
+
+
+    def _bugPeriodicCheck(self):
+	irc = self.lastIrc
+        newBug = self.server.mc_issue_get_biggest_id( username=self.username,
+            password=self.password, project_id = 0 ) + 1
+        if self.lastBug == 0:
+            self.lastBug = newBug 
+        if newBug > self.lastBug:
+            strings = self.getBugs( range(self.lastBug, newBug) )
+            for s in strings:
+                sendtos = self.registryValue('bugPeriodicCheckTo')
+                sendtos = sendtos.split()
+                for sendto in sendtos:
+                    irc.reply(s, to=sendto, private=True)
+            self.lastBug = newBug
 
 
     def bug(self, irc, msg, args, bugNumber):
