@@ -73,19 +73,13 @@ class Mantis(callbacks.PluginRegexp):
         """<bug number>
         Expand bug # to a full URI
         """
-        if self.server.mc_issue_exists( username=self.username,
-                password=self.password, issue_id = bugNumber ):
-        #TODO: we could use directly this call to see if bug exists; learn how
-        #      to use exceptions
-            bugdata = self.server.mc_issue_get( username=self.username, password=self.password, issue_id = bugNumber )
-            summary = bugdata['summary']
-            status = bugdata['status'].name
-            reporter = bugdata['reporter'].name
-            resolution = bugdata['resolution'].name
-            irc.reply("Bug %s - %s - %s - %s" % (bugNumber, reporter, status, resolution) )
-            irc.reply("%s - %s/view.php?id=%s" % (summary, self.urlbase, bugNumber) )
-        else:
+        strings = self.getBugs( [ bugNumber ] )
+
+        if strings == []:
             irc.reply( "sorry, bug %s was not found" % bugNumber )
+        else:
+            for s in strings:
+                irc.reply(s, prefixNick=False)
 
     bug = wrap(bug, ['int'])
 
@@ -132,15 +126,21 @@ class Mantis(callbacks.PluginRegexp):
         return True
 
     def getBugs(self, ids):
+        strings = []
         for id in ids:
-            bugdata = self.server.mc_issue_get( username=self.username,
-                    password=self.password, issue_id = id )
-            summary = bugdata['summary']
-            status = bugdata['status'].name
-            reporter = bugdata['reporter'].name
-            resolution = bugdata['resolution'].name
-            strings = [ "Bug %s - %s - %s - %s" % (id, reporter, status, resolution) ]
-            strings.append( "%s - %s/view.php?id=%s" % (summary, self.urlbase, id) )
+            if self.server.mc_issue_exists( username=self.username,
+           	password=self.password, issue_id = id ):
+            #TODO: we could use directly this call to see if bug exists; learn how
+            # to use exceptions
+                    bugdata = self.server.mc_issue_get( username=self.username,
+                        password=self.password, issue_id = id )
+                    project = bugdata['project'].name
+                    summary = bugdata['summary']
+                    status = bugdata['status'].name
+                    reporter = bugdata['reporter'].name
+                    resolution = bugdata['resolution'].name
+                    strings = [ "Bug %s (%s: %s) reported by %s - %s - %s - %s/view.php?id=%s" %
+                        (id, project, summary, reporter, status, resolution, self.urlbase, id) ]
         return strings
 
 
