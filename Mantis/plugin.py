@@ -134,13 +134,16 @@ class Mantis(callbacks.PluginRegexp):
             # to use exceptions
                     bugdata = self.server.mc_issue_get( username=self.username,
                         password=self.password, issue_id = id )
-                    project = bugdata['project'].name
-                    summary = bugdata['summary']
-                    status = bugdata['status'].name
-                    reporter = bugdata['reporter'].name
-                    resolution = bugdata['resolution'].name
-                    strings = [ "Bug %s (%s: %s) reported by %s - %s - %s - %s/view.php?id=%s" %
-                        (id, project, summary, reporter, status, resolution, self.urlbase, id) ]
+                    bugmsg = self.registryValue('bugMsgFormat')
+                    bugmsg = bugmsg.replace('_ID_', "%s" % id)
+                    bugmsg = bugmsg.replace('_PROJECT_', bugdata['project'].name)
+                    bugmsg = bugmsg.replace('_SUMMARY_', bugdata['summary'])
+                    bugmsg = bugmsg.replace('_REPORTER_', bugdata['reporter'].name)
+                    bugmsg = bugmsg.replace('_STATUS_', bugdata['status'].name)
+                    bugmsg = bugmsg.replace('_RESOLUTION_', bugdata['resolution'].name)
+                    bugmsg = bugmsg.replace('_URL_', "%s/view.php?id=%s" % (self.urlbase, id))
+           
+                    strings = bugmsg.split('_CRLF_') 
         return strings
 
 
