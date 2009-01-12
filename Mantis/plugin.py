@@ -69,20 +69,15 @@ class Mantis(callbacks.PluginRegexp):
         self.username = self.registryValue('username')
         self.password = self.registryValue('password')
         self.oldperiodic = self.registryValue('bugPeriodicCheck')
+        self.irc = irc
+        self.lastBug = 0
 
-        bugPeriodicCheck = self.registryValue('bugPeriodicCheck')
+        bugPeriodicCheck = self.oldperiodic
         if bugPeriodicCheck > 0:
             schedule.addPeriodicEvent(self._bugPeriodicCheck, bugPeriodicCheck, name=self.name())
 
         reload(sys)
         sys.setdefaultencoding('utf-8')
-
-
-    def __call__(self, irc, msg):
-        irc = callbacks.SimpleProxy(irc, msg)
-        self.lastIrc = irc
-        self.lastMsg = msg
-        self.lastBug = 0
 
 
     def die(self):
@@ -92,7 +87,7 @@ class Mantis(callbacks.PluginRegexp):
 
 
     def _bugPeriodicCheck(self):
-	irc = self.lastIrc
+	irc = self.irc
         newBug = self.server.mc_issue_get_biggest_id( username=self.username,
             password=self.password, project_id = 0 ) + 1
         if self.lastBug == 0:
@@ -103,7 +98,7 @@ class Mantis(callbacks.PluginRegexp):
                 sendtos = self.registryValue('bugPeriodicCheckTo')
                 sendtos = sendtos.split()
                 for sendto in sendtos:
-                    irc.reply(s, to=sendto, private=True)
+                    irc.reply("New bug: %s" % s, to=sendto, private=True)
             self.lastBug = newBug
 
 
@@ -132,6 +127,7 @@ class Mantis(callbacks.PluginRegexp):
     def snarfBug(self, irc, msg, match):
 #r"""\b((?P<install>\w+)\b\s*)?(?P<type>bug|attachment)\b[\s#]*(?P<id>\d+)"""
         r"""\bbug\b[\s#]*(?P<id>\d+)"""
+        self.log.info('Snarf here')
         channel = msg.args[0]
         if not self.registryValue('bugSnarfer', channel): return
 
@@ -147,9 +143,9 @@ class Mantis(callbacks.PluginRegexp):
         if not ids: return
 
         strings = self.getBugs(ids)
-
         for s in strings:
             irc.reply(s, prefixNick=False)
+
 
     def _shouldSayBug(self, bug_id, channel):
         if channel not in self.saidBugs:
@@ -162,6 +158,7 @@ class Mantis(callbacks.PluginRegexp):
         self.log.info('After checking bug %s queue is %r' \
                         % (bug_id, self.saidBugs[channel]))
         return True
+
 
     def getBugs(self, ids):
         strings = []
@@ -180,8 +177,9 @@ class Mantis(callbacks.PluginRegexp):
                     bugmsg = bugmsg.replace('_STATUS_', bugdata['status'].name)
                     bugmsg = bugmsg.replace('_RESOLUTION_', bugdata['resolution'].name)
                     bugmsg = bugmsg.replace('_URL_', "%s/view.php?id=%s" % (self.urlbase, id))
-           
-                    strings = bugmsg.split('_CRLF_') 
+                    bugmsg = bugmsg.split('_CRLF_')
+                    for msg in bugmsg:
+                        strings.append(msg)
         return strings
 
 
