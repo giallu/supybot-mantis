@@ -163,12 +163,11 @@ class Mantis(callbacks.PluginRegexp):
     def getBugs(self, ids):
         strings = []
         for id in ids:
-            if self.server.mc_issue_exists( username=self.username,
-           	password=self.password, issue_id = id ):
-            #TODO: we could use directly this call to see if bug exists; learn how
-            # to use exceptions
-                    bugdata = self.server.mc_issue_get( username=self.username,
-                        password=self.password, issue_id = id )
+                    try:
+                        bugdata = self.server.mc_issue_get( username=self.username,
+                            password=self.password, issue_id = id )
+                    except Exception:
+                        continue
                     bugmsg = self.registryValue('bugMsgFormat')
                     bugmsg = bugmsg.replace('_ID_', "%s" % id)
                     bugmsg = bugmsg.replace('_PROJECT_', bugdata['project'].name)
