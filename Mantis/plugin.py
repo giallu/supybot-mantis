@@ -173,6 +173,10 @@ class Mantis(callbacks.PluginRegexp):
                     bugmsg = bugmsg.replace('_PROJECT_', bugdata['project'].name)
                     bugmsg = bugmsg.replace('_SUMMARY_', bugdata['summary'])
                     bugmsg = bugmsg.replace('_REPORTER_', bugdata['reporter'].name)
+                    try:
+                         bugmsg = bugmsg.replace('_ASSIGNED_', bugdata['handler'].name)
+                    except Exception:
+                         bugmsg = bugmsg.replace('_ASSIGNED_', 'nobody')
                     bugmsg = bugmsg.replace('_STATUS_', bugdata['status'].name)
                     bugmsg = bugmsg.replace('_RESOLUTION_', bugdata['resolution'].name)
                     bugmsg = bugmsg.replace('_URL_', "%s/view.php?id=%s" % (self.urlbase, id))
