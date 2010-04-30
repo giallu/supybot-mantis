@@ -83,6 +83,12 @@ conf.registerChannelValue(Mantis, 'urlbase',
     """The base URL for the Mantis instance this plugin will retrieve
     bug informations from."""))
 
+conf.registerGlobalValue(Mantis, 'privateurlbase',
+    registry.String('',
+    """The private base URL for the Mantis instance, used when connecting
+    with the SOAP API.  Potentially useful for SSL or HTTP auth parameters.""",
+                    private=True))
+
 conf.registerGlobalValue(Mantis, 'username',
     registry.String('', """Username for the Mantis account""",
                     private=True))

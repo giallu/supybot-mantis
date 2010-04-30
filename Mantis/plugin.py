@@ -64,7 +64,13 @@ class Mantis(callbacks.PluginRegexp):
             self.saidBugs[k] = TimeoutQueue(sayTimeout)
         
         self.urlbase = self.registryValue('urlbase') 
-        serviceUrl = self.urlbase + '/api/soap/mantisconnect.php'
+        self.privateurlbase = self.registryValue('privateurlbase')
+
+        if self.privateurlbase != "":
+            serviceUrl = self.privateurlbase + '/api/soap/mantisconnect.php'
+        else:
+            serviceUrl = self.urlbase + '/api/soap/mantisconnect.php'
+
         self.server = SOAPProxy(serviceUrl)._ns(namespace)
         self.username = self.registryValue('username')
         self.password = self.registryValue('password')
