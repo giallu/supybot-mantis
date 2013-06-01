@@ -34,6 +34,7 @@ import supybot.plugins as plugins
 import supybot.ircutils as ircutils
 import supybot.callbacks as callbacks
 import supybot.schedule as schedule
+import supybot.ircmsgs as ircmsgs
 from supybot.utils.structures import TimeoutQueue
 
 import sys
@@ -92,20 +93,25 @@ class Mantis(callbacks.PluginRegexp):
             schedule.removeEvent(self.name())
 
 
-    def _bugPeriodicCheck(self):
-	irc = self.irc
+def _bugPeriodicCheck(self):
+        irc = self.irc
         newBug = self.server.mc_issue_get_biggest_id( username=self.username,
             password=self.password, project_id = 0 ) + 1
+        #self.log.debug('Timer hit')
         if self.lastBug == 0:
-            self.lastBug = newBug 
+            self.lastBug = newBug
         if newBug > self.lastBug:
+            #self.log.debug('Bug is greater: '+ str(newBug) + ' ' + str(self.lastBug))
             strings = self.getBugs( range(self.lastBug, newBug) )
             for s in strings:
                 sendtos = self.registryValue('bugPeriodicCheckTo')
                 sendtos = sendtos.split()
                 for sendto in sendtos:
-                    irc.reply("New bug: %s" % s, to=sendto, private=True)
+                    #self.log.debug('sendtochannel: '+ sendto + s)
+                    irc.queueMsg(ircmsgs.privmsg(sendto, s))
+                    #self.log.debug('Sent: ' + s)
             self.lastBug = newBug
+            #self.log.debug('End for: '+ str(newBug) + ' ' + str(self.lastBug))
 
 
     def bug(self, irc, msg, args, bugNumber):
