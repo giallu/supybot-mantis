@@ -118,6 +118,10 @@ def _bugPeriodicCheck(self):
         """<bug number>
         Expand bug # to a full URI
         """
+        # supybot's 'int' type treats zero-prefixed bug numbers as octal,
+        # so we need to take in strings and do a decimal conversion manually
+        bugNumber = int(bugNumber)
+
         strings = self.getBugs( [ bugNumber ] )
 
         if strings == []:
@@ -126,7 +130,7 @@ def _bugPeriodicCheck(self):
             for s in strings:
                 irc.reply(s, prefixNick=False)
 
-    bug = wrap(bug, ['int'])
+    bug = wrap(bug, ['text'])
 
 
     def version( self, irc, msg, args ):
