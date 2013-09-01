@@ -46,7 +46,7 @@ namespace = 'http://futureware.biz/mantisconnect'
 
 class Mantis(callbacks.PluginRegexp):
     """Utilities related to mantis
-    This plugin is able to display newly reported bug, 
+    This plugin is able to display newly reported bug,
     and an expansion "bug #" to URI is provided.
     It can also detect "bug #" in chat.
     A template allow to change response message.
@@ -63,8 +63,8 @@ class Mantis(callbacks.PluginRegexp):
         sayTimeout = self.registryValue('bugSnarferTimeout')
         for k in irc.state.channels.keys():
             self.saidBugs[k] = TimeoutQueue(sayTimeout)
-        
-        self.urlbase = self.registryValue('urlbase') 
+
+        self.urlbase = self.registryValue('urlbase')
         self.privateurlbase = self.registryValue('privateurlbase')
 
         if self.privateurlbase != "":
@@ -139,7 +139,7 @@ def _bugPeriodicCheck(self):
         irc.reply( "Mantis SOAP API version: " + self.server.mc_version() )
     version = wrap(version)
 
-    
+
     def snarfBug(self, irc, msg, match):
 #r"""\b((?P<install>\w+)\b\s*)?(?P<type>bug|attachment)\b[\s#]*(?P<id>\d+)"""
         r"""\bbug\b[\s#]*(?P<id>\d+)"""
